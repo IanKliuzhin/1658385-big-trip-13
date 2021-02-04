@@ -3,7 +3,7 @@ import PointView from '../view/point';
 import PointEditorView from '../view/point-editor';
 import {UpdateType, ActionType} from '../const';
 import {compareTimes} from '../utils/time';
-import {compareOffers, handleEscape} from '../utils/common';
+import {compareOffers, handleEscape, getIsOnline} from '../utils/common';
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -13,7 +13,9 @@ const Mode = {
 export const State = {
   SAVING: `SAVING`,
   DELETING: `DELETING`,
-  SHAKING: `SHAKING`
+  SHAKING: `SHAKING`,
+  DISABLED: `DISABLED`,
+  ENABLED: `ENABLED`
 };
 
 export default class PointPresenter {
@@ -97,13 +99,23 @@ export default class PointPresenter {
       case State.SHAKING:
         const resetFormState = () => {
           this._editPointComponent.updateData({
-            isDisabled: false,
+            isDisabled: !getIsOnline(),
             isSaving: false,
             isDeleting: false
           });
         };
         this._editPointComponent.shake(resetFormState);
         this._pointComponent.shake(resetFormState);
+        break;
+      case State.DISABLED:
+        this._editPointComponent.updateData({
+          isDisabled: true,
+        });
+        break;
+      case State.ENABLED:
+        this._editPointComponent.updateData({
+          isDisabled: false,
+        });
         break;
     }
   }

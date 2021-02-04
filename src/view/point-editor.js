@@ -1,6 +1,7 @@
 import SmartView from './smart';
 import flatpickr from "flatpickr";
 import dayjs from 'dayjs';
+import {getIsOnline} from '../utils/common';
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
@@ -126,7 +127,7 @@ const createEditPointTemplate = (data, destinations) => {
 
           <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? `disabled` : ``}>${isSaving ? `Saving...` : `Save`}</button>
           ${isNewPoint
-    ? `<button class="event__reset-btn" type="reset" ${isDisabled ? `disabled` : ``}>Cancel</button>`
+    ? `<button class="event__reset-btn" type="reset">Cancel</button>`
     : `<button class="event__reset-btn" type="reset" ${isDisabled ? `disabled` : ``}>${isDeleting ? `Deleting` : `Delete`}</button>`}
           ${isNewPoint ? `` : `<button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>
@@ -178,7 +179,9 @@ export default class PointEditorView extends SmartView {
     this._setInnerHandlers();
     this._setDatepickers();
     this.setFormSubmitHandler(this._callback.formSubmit);
-    if (!this._data.isNewPoint) {
+    if (this._data.isNewPoint) {
+      this.setDeleteClickHandler(this._callback.delete);
+    } else {
       this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
     }
   }
@@ -360,6 +363,7 @@ export default class PointEditorView extends SmartView {
     const availableOffers = PointEditorView.getAvailableOffers(point.type, offersList);
     const pickedOffers = new Set(point.offers.map((offer) => offer.name));
     const isThereAvailableOffers = !!availableOffers.length;
+    const isDisabled = !getIsOnline();
     return Object.assign(
         {},
         point,
@@ -368,7 +372,7 @@ export default class PointEditorView extends SmartView {
           availableOffers,
           isThereAvailableOffers,
           pickedOffers,
-          isDisabled: false,
+          isDisabled,
           isSaving: false,
           isDeleting: false
         },

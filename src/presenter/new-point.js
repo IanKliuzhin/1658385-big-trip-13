@@ -1,7 +1,7 @@
 import PointEditorView from '../view/point-editor';
 import {render, RenderPosition, remove} from '../utils/render';
 import {UpdateType, ActionType} from '../const';
-import {handleEscape} from '../utils/common';
+import {handleEscape, getIsOnline} from '../utils/common';
 
 export default class NewPointPresenter {
   constructor(pointsListElement, changeData, newEventButton, destinationsModel, offersModel) {
@@ -44,7 +44,9 @@ export default class NewPointPresenter {
 
     document.removeEventListener(`keydown`, this._handleKeyDown);
 
-    this._newEventButton.disabled = false;
+    if (getIsOnline()) {
+      this._newEventButton.disabled = false;
+    }
   }
 
   setIsSaving() {
@@ -54,10 +56,20 @@ export default class NewPointPresenter {
     });
   }
 
+  setIsDisabled(isDisabled) {
+    if (this._editPointComponent === null) {
+      return;
+    }
+
+    this._editPointComponent.updateData({
+      isDisabled
+    });
+  }
+
   resetStateWithShake() {
     const resetFormState = () => {
       this._editPointComponent.updateData({
-        isDisabled: false,
+        isDisabled: !getIsOnline(),
         isSaving: false,
         isDeleting: false
       });

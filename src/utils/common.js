@@ -14,3 +14,7 @@ export const handleEscape = (evt, callback) => {
 };
 
 export const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+export const getIsOnline = () => {
+  return window.navigator.onLine;
+};

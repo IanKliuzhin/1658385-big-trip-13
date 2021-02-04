@@ -71,6 +71,16 @@ export default class TripPresenter {
     this._pointsModel.removeObserver(this._handleModelEvent);
   }
 
+  disableEditing() {
+    this._pointPresenter.forEach((presenter) => presenter.setViewState(PointState.DISABLED));
+    this._newPointPresenter.setIsDisabled(true);
+  }
+
+  enableEditing() {
+    this._pointPresenter.forEach((presenter) => presenter.setViewState(PointState.ENABLED));
+    this._newPointPresenter.setIsDisabled(false);
+  }
+
   _renderPointsDependentElements() {
     if (this._isLoading) {
       this._renderLoading();

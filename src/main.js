@@ -11,8 +11,10 @@ import {TabType, UpdateType} from './const';
 import Api from './api/api';
 import Store from "./api/store.js";
 import Provider from "./api/provider.js";
+import {toast, removeToast} from "./utils/toast/toast.js";
+import {getIsOnline} from "./utils/common";
 
-const AUTHORIZATION_KEY = `oitmgq301f`;
+const AUTHORIZATION_KEY = `dauofv0984q3a`;
 const AUTHORIZATION = `Basic ${AUTHORIZATION_KEY}`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 const STORE_NAME = `big-trip-storage`;
@@ -72,6 +74,20 @@ const filtersPresenter = new FilterPresenter(filtersModel, filtersContainerEleme
 
 tripPresenter.init(newEventButton, destinationsModel, offersModel);
 
+const blockEditing = () => {
+  document.title += ` [offline]`;
+  toast(`Offline mode. Creating & editing point is unavailable!`);
+  tripPresenter.disableEditing();
+  newEventButton.disabled = true;
+};
+
+const unblockEditing = () => {
+  document.title = document.title.replace(` [offline]`, ``);
+  removeToast();
+  tripPresenter.enableEditing();
+  newEventButton.disabled = false;
+};
+
 Promise.all([
   api.getPoints(), api.getDestinations(), api.getOffers()
 ])
@@ -86,7 +102,11 @@ Promise.all([
   .finally(() => {
     renderMenu(menuContainerElement);
     filtersPresenter.init();
-    newEventButton.disabled = false;
+    if (!getIsOnline()) {
+      blockEditing();
+    } else {
+      unblockEditing();
+    }
   });
 
 newEventButton.addEventListener(`click`, (evt) => {
@@ -94,18 +114,21 @@ newEventButton.addEventListener(`click`, (evt) => {
   tripPresenter.createPoint();
 });
 
-
 window.addEventListener(`load`, () => {
   navigator.serviceWorker.register(`/sw.js`);
 });
 
 window.addEventListener(`online`, () => {
-  document.title = document.title.replace(` [offline]`, ``);
+  unblockEditing();
   if (api.getIsNotSynced()) {
-    api.sync();
+    toast(`Back online. Syncing offline data...`);
+    api.sync()
+      .finally(() => {
+        removeToast();
+      });
   }
 });
 
 window.addEventListener(`offline`, () => {
-  document.title += ` [offline]`;
+  blockEditing();
 });
