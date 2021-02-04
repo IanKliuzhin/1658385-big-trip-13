@@ -47,10 +47,10 @@ export default class PointPresenter {
     this._pointComponent = new PointView(point);
     this._editPointComponent = new PointEditorView(this._destinationsModel.destinations, this._offersModel.offers, this._destinationsModel.getDescription, point);
 
-    this._pointComponent.setRollupButtonClickHandler(this._handleFormRollupButtonClick);
+    this._pointComponent.setRollupButtonClickHandler(this._handlePointRollupButtonClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._editPointComponent.setFormSubmitHandler(this._handleFormSubmit);
-    this._editPointComponent.setRollupButtonClickHandler(this._handlePointRollupButtonClick);
+    this._editPointComponent.setRollupButtonClickHandler(this._handleFormRollupButtonClick);
     this._editPointComponent.setDeleteClickHandler(this._handleDeletePoint);
 
     if (prevPointComponent === null || prevEditPointComponent === null) {
@@ -108,14 +108,18 @@ export default class PointPresenter {
         this._pointComponent.shake(resetFormState);
         break;
       case State.DISABLED:
-        this._editPointComponent.updateData({
-          isDisabled: true,
-        });
+        if (this._mode === Mode.EDITING) {
+          this._editPointComponent.updateData({
+            isDisabled: true,
+          });
+        }
         break;
       case State.ENABLED:
-        this._editPointComponent.updateData({
-          isDisabled: false,
-        });
+        if (this._mode === Mode.EDITING) {
+          this._editPointComponent.updateData({
+            isDisabled: false,
+          });
+        }
         break;
     }
   }
@@ -139,7 +143,7 @@ export default class PointPresenter {
     });
   }
 
-  _handleFormRollupButtonClick() {
+  _handlePointRollupButtonClick() {
     document.addEventListener(`keydown`, this._handleKeyDown);
     this._replacePointToForm();
   }
@@ -168,7 +172,7 @@ export default class PointPresenter {
     this._changeData(ActionType.DELETE, UpdateType.MAJOR, point);
   }
 
-  _handlePointRollupButtonClick() {
+  _handleFormRollupButtonClick() {
     this._replaceFormToPoint();
   }
 }

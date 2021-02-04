@@ -180,7 +180,6 @@ export default class TripPresenter {
           .catch(() => {
             this._newPointPresenter.resetStateWithShake();
           });
-
         break;
     }
   }
